@@ -1,10 +1,10 @@
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+### STS / Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -12,8 +12,9 @@ target/
 .settings
 .springBeans
 .sts4-cache
+bin/
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA (Team có thể dùng cái này) ###
 .idea
 *.iws
 *.iml
@@ -26,8 +27,17 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+### VS Code (Của bạn) ###
 .vscode/
+
+### Mac OS (Của chị Frontend nếu dùng Macbook) ###
+.DS_Store
+
+### Windows (Của team dùng Win) ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+### Logs ###
+*.log
