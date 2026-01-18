@@ -30,7 +30,7 @@ public class AuthenticationService {
     private final EmailService emailService;
 
     // --- 1. ĐĂNG KÝ ---
-    public String register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request) {
         if (!request.isTermsAccepted()) {
             throw new RegistrationException("Vui lòng đồng ý với điều khoản sử dụng!");
         }
@@ -62,14 +62,26 @@ public class AuthenticationService {
             emailService.sendVerificationEmail(account.getEmail(), randomCode);
         } catch (Exception e) {
             System.err.println("Gửi mail thất bại: " + e.getMessage());
-            return "Đăng ký thành công, nhưng gửi email thất bại. Vui lòng liên hệ admin.";
+            // vẫn trả về thông tin user, nhưng token = null
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .id(account.getId())
+                    .username(account.getUsername())
+                    .role(account.getRole().name())
+                    .build();
         }
 
-        return "Đăng ký thành công! Vui lòng kiểm tra email để lấy mã xác thực.";
+        // chưa active nên chưa cấp token, FE chỉ nhận thông tin user
+        return AuthenticationResponse.builder()
+                .token(null)
+                .id(account.getId())
+                .username(account.getUsername())
+                .role(account.getRole().name())
+                .build();
     }
 
     // --- 2. XÁC THỰC ---
-    public void verifyUser(String email, String code) {
+    public AuthenticationResponse verifyUser(String email, String code) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new VerificationException("Không tìm thấy email này!"));
 
@@ -89,6 +101,16 @@ public class AuthenticationService {
         account.setVerificationCode(null);
         account.setVerificationExpiry(null);
         accountRepository.save(account);
+
+        // cấp token ngay sau khi verify thành công
+        var jwtToken = jwtService.generateToken(account);
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .id(account.getId())
+                .username(account.getUsername())
+                .role(account.getRole().name())
+                .build();
     }
 
     // --- 3. ĐĂNG NHẬP ---

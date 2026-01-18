@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cinehub.backend.dto.request.LoginRequest;
 import com.cinehub.backend.dto.request.RegisterRequest;
+import com.cinehub.backend.dto.response.AuthenticationResponse;
 import com.cinehub.backend.exception.RegistrationException;
 import com.cinehub.backend.exception.VerificationException;
 import com.cinehub.backend.service.AuthenticationService;
@@ -27,10 +28,10 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
-            String message = authenticationService.register(request);
-            return ResponseEntity.ok(message); // luôn trả về 200 nếu lưu thành công
+            AuthenticationResponse response = authenticationService.register(request);
+            return ResponseEntity.ok(response); // trả về JSON chứa id, username, role, token=null
         } catch (RegistrationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // ❌ input sai
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -38,14 +39,13 @@ public class AuthenticationController {
     @PostMapping("/verify")
     public ResponseEntity<?> verify(@RequestParam String email, @RequestParam String code) {
         try {
-            authenticationService.verifyUser(email, code);
-            return ResponseEntity.ok("Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay.");
+            AuthenticationResponse response = authenticationService.verifyUser(email, code);
+            return ResponseEntity.ok(response); // trả về JSON chứa token + thông tin user
         } catch (VerificationException e) {
-            // ⚠️ Nếu OTP hết hạn → 403
             if (e.getMessage().toLowerCase().contains("hết hạn")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             }
-            return ResponseEntity.badRequest().body(e.getMessage()); // mã sai
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -53,11 +53,12 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            return ResponseEntity.ok(authenticationService.login(request)); // trả về token nếu thành công
+            AuthenticationResponse response = authenticationService.login(request);
+            return ResponseEntity.ok(response); // trả về JSON chứa token + thông tin user
         } catch (VerificationException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // chưa xác thực
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (RegistrationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // sai thông tin
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
