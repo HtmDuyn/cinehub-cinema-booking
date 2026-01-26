@@ -1,0 +1,499 @@
+{
+  "info": {
+    "_postman_id": "cinehub-guest-features",
+    "name": "CineHub - Guest Features",
+    "description": "API Testing for Guest Users Features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "MOVIES",
+      "item": [
+        {
+          "name": "1. Get All Movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies"
+              ]
+            },
+            "description": "Get all available movies\n\n**Guest Feature** ✅ No authentication required"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Movie by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response contains movie details\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('title');",
+                  "    pm.expect(jsonData).to.have.property('description');",
+                  "    pm.expect(jsonData).to.have.property('genre');",
+                  "    pm.expect(jsonData).to.have.property('duration');",
+                  "    pm.expect(jsonData).to.have.property('trailerUrl');",
+                  "    pm.expect(jsonData).to.have.property('rating');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "1"
+              ]
+            },
+            "description": "Get detailed information about a specific movie including trailer URL\n\n**Guest Feature** ✅ No authentication required\n\n**Path Parameters:**\n- `id` (required): Movie ID"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Search Movies by Title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies/search?title=Avatar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "Avatar"
+                }
+              ]
+            },
+            "description": "Search movies by title (case-insensitive, partial match supported)\n\n**Guest Feature** ✅ No authentication required\n\n**Query Parameters:**\n- `title` (required): Movie title or part of title to search for"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Movies by Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies/genre/Khoa%20học%20viễn%20tưởng",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "genre",
+                "Khoa học viễn tưởng"
+              ]
+            },
+            "description": "Get all movies by genre (case-insensitive)\n\n**Guest Feature** ✅ No authentication required\n\n**Path Parameters:**\n- `genre` (required): Genre name (e.g., Hành động, Tình cảm, Khoa học viễn tưởng)"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Search Movies by Keyword",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies/search-keyword?keyword=Sci-Fi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "search-keyword"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "Sci-Fi"
+                }
+              ]
+            },
+            "description": "Search movies by keyword in title or genre (case-insensitive)\n\n**Guest Feature** ✅ No authentication required\n\n**Query Parameters:**\n- `keyword` (required): Search keyword for title or genre"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Create Movie (Admin Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response contains created movie\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData.title).to.equal('New Movie');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Movie\",\n  \"description\": \"This is a new movie description\",\n  \"genre\": \"Hành động\",\n  \"duration\": 120,\n  \"releaseDate\": \"2024-01-20\",\n  \"posterUrl\": \"https://example.com/poster.jpg\",\n  \"trailerUrl\": \"https://youtube.com/watch?v=...\",\n  \"rating\": 4.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies"
+              ]
+            },
+            "description": "Create a new movie\n\n**Admin Only** ✅ Authentication required\n\n**Request Body:**\n- `title` (string, required): Movie title\n- `description` (string): Movie description\n- `genre` (string, required): Genre\n- `duration` (number): Duration in minutes\n- `releaseDate` (string): Release date\n- `posterUrl` (string): URL to movie poster\n- `trailerUrl` (string): URL to movie trailer\n- `rating` (number): Movie rating"
+          },
+          "response": []
+        },
+        {
+          "name": "7. Update Movie (Admin Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Movie Title\",\n  \"description\": \"Updated description\",\n  \"genre\": \"Tâm lý\",\n  \"duration\": 130,\n  \"releaseDate\": \"2024-01-20\",\n  \"posterUrl\": \"https://example.com/poster-updated.jpg\",\n  \"trailerUrl\": \"https://youtube.com/watch?v=updated\",\n  \"rating\": 4.7\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "1"
+              ]
+            },
+            "description": "Update an existing movie\n\n**Admin Only** ✅ Authentication required\n\n**Path Parameters:**\n- `id` (required): Movie ID to update"
+          },
+          "response": []
+        },
+        {
+          "name": "8. Delete Movie (Admin Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/movies/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "1"
+              ]
+            },
+            "description": "Delete a movie\n\n**Admin Only** ✅ Authentication required\n\n**Path Parameters:**\n- `id` (required): Movie ID to delete"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AUTHENTICATION",
+      "item": [
+        {
+          "name": "1. Register New Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Registration successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.equal(true);",
+                  "    pm.expect(jsonData.message).to.include('successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"MyPassword123\",\n  \"fullName\": \"John Doe\",\n  \"phone\": \"0123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user account\n\n**Guest Feature** ✅ No authentication required\n\n**Request Body:**\n- `email` (string, required): User email address\n- `password` (string, required): User password (min 6 characters)\n- `fullName` (string, required): Full name\n- `phone` (string, optional): Phone number"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Login successful and token received\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.equal(true);",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "});",
+                  "pm.test(\"Set jwt_token variable\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"MyPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get JWT authentication token\n\n**Request Body:**\n- `email` (string, required): Registered email\n- `password` (string, required): Password"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
