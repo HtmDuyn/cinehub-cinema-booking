@@ -1,27 +1,38 @@
 package com.cinehub.backend.model.entity;
 
-import com.cinehub.backend.model.enums.Role;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.cinehub.backend.model.enums.Role;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
-@Builder // Dùng để tạo object nhanh: Account.builder().username("...").build()
-@NoArgsConstructor // Bắt buộc cho JPA
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "accounts") // Đổi thành số nhiều cho chuẩn
-public class Account implements UserDetails { // Kế thừa UserDetails của Spring Security
+@Table(name = "accounts")
+public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,37 +54,46 @@ public class Account implements UserDetails { // Kế thừa UserDetails của S
     private String fullName;
 
     @Column(name = "dob")
-
     private LocalDate dob;
-    // --- THÊM MỚI CHO RẠP PHIM ---
+
     @Builder.Default
     @Column(name = "membership_score")
-    private Integer membershipScore = 0; // Điểm tích lũy (Mặc định là 0)
+    private Integer membershipScore = 0;
 
     @Builder.Default
     @Column(name = "is_active")
-    private boolean isActive = false; // Mặc định là chưa active
-
-    @Column(name = "verification_code", length = 6)
-    private String verificationCode; // Lưu mã OTP (VD: 123456)
-
-    @Column(name = "verification_expiry")
-    private LocalDateTime verificationExpiry; // thời gian hết hạn OTP
+    private boolean isActive = false;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // --- CẤU HÌNH SPRING SECURITY ---
+    // --- Audit fields ---
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // --- SPRING SECURITY CONFIG ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Chỉ cho Spring biết user này có quyền gì
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
     public String getUsername() {
-        return username; // Spring dùng cái này để xác thực
+        return username;
     }
 
     @Override
@@ -81,8 +101,6 @@ public class Account implements UserDetails { // Kế thừa UserDetails của S
         return password;
     }
 
-    // Các hàm dưới đây để mặc định là true (Tài khoản không bao giờ hết hạn/bị khóa
-    // tự động)
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -91,7 +109,7 @@ public class Account implements UserDetails { // Kế thừa UserDetails của S
     @Override
     public boolean isAccountNonLocked() {
         return true;
-    } // Luôn cho phép, nếu muốn khóa tài khoản thì thêm field riêng
+    }
 
     @Override
     public boolean isCredentialsNonExpired() {
@@ -101,5 +119,5 @@ public class Account implements UserDetails { // Kế thừa UserDetails của S
     @Override
     public boolean isEnabled() {
         return isActive;
-    } // Nếu isActive = false thì không đăng nhập được
+    }
 }

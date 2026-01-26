@@ -61,4 +61,11 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // 4️ GỬI LẠI MÃ XÁC THỰC
+    @PostMapping("/resend-code")
+    public ResponseEntity<AuthenticationResponse> resendCode(@RequestParam String email) {
+        return ResponseEntity.ok(authenticationService.resendVerificationCode(email));
+    }
+
 }
