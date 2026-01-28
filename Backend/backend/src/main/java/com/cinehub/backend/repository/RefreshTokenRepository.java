@@ -1,5 +1,7 @@
 package com.cinehub.backend.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +15,9 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void deleteByAccount(Account account);
 
     void deleteByToken(String token);
+
+    List<RefreshToken> findByAccountAndRevokedFalse(Account account);
+
+    void deleteAllByRevokedTrueOrExpiryDateBefore(LocalDateTime now);
+
 }

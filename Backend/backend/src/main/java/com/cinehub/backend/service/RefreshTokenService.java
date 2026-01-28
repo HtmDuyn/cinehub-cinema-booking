@@ -3,9 +3,9 @@ package com.cinehub.backend.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service; 
+import org.springframework.stereotype.Service;
 
-import com.cinehub.backend.model.entity.Account; 
+import com.cinehub.backend.model.entity.Account;
 import com.cinehub.backend.model.entity.RefreshToken;
 import com.cinehub.backend.repository.RefreshTokenRepository;
 
@@ -17,7 +17,16 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    // ✅ Tạo refresh token mới, đồng thời revoke token cũ của account
     public RefreshToken create(Account account) {
+        // Revoke tất cả token cũ của account
+        refreshTokenRepository.findByAccountAndRevokedFalse(account)
+                .forEach(rt -> {
+                    rt.setRevoked(true);
+                    refreshTokenRepository.save(rt);
+                });
+
+        // Tạo token mới
         RefreshToken token = new RefreshToken();
         token.setAccount(account);
         token.setToken(UUID.randomUUID().toString());
@@ -26,6 +35,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
+    // ✅ Kiểm tra token hợp lệ
     public RefreshToken validate(String token) {
         RefreshToken rt = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Token không tồn tại"));
@@ -35,6 +45,7 @@ public class RefreshTokenService {
         return rt;
     }
 
+    // ✅ Revoke token theo giá trị
     public void revoke(String token) {
         refreshTokenRepository.findByToken(token).ifPresent(rt -> {
             rt.setRevoked(true);
