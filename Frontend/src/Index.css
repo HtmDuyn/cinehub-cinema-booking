@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==============================
+  GLOBAL BASE
+============================== */
+
+:root{
+  --galaxy-1: #0b1028;
+  --galaxy-2: #2b0f59;
+  --galaxy-3: #4b2b8b;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  /* Tone màu đậm hơn, thiên về xanh đen huyền bí */
+  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  color: #e6eef8;
+  min-height: 100vh;
+}
+
+/* ==============================
+  HEADER
+============================== */
+
+.site-header {
+  z-index: 50;
+}
+
+.site-header .logo {
+  letter-spacing: 1px;
+}
+
+/* ==============================
+  BANNER
+============================== */
+
+.bg-hero-gradient,
+.banner-galaxy-bg {
+  position: relative;
+  z-index: 5; /* giữ phía trên smoke nhưng dưới header */
+  background:
+    radial-gradient(800px 400px at 20% 20%, rgba(90,110,255,0.28), transparent 70%),
+    radial-gradient(600px 300px at 80% 70%, rgba(205,70,255,0.22), transparent 75%),
+    linear-gradient(180deg, #0b0e2b 0%, #120b2e 40%, #090619 100%);
+}
+
+/* Galaxy Smoke Effect */
+.galaxy-smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(85,111,255,0.25), transparent 60%),
+    radial-gradient(circle at 70% 60%, rgba(202,62,255,0.2), transparent 70%),
+    radial-gradient(circle at 40% 80%, rgba(90,210,255,0.15), transparent 75%);
+  animation: smokeMove 18s infinite ease-in-out alternate;
+  mix-blend-mode: screen;
+  filter: blur(45px);
+}
+
+@keyframes smokeMove {
+  0% { transform: translate(-20px, -10px) scale(1);}
+  50% { transform: translate(10px, 20px) scale(1.15);}
+  100% { transform: translate(-15px, 15px) scale(1.05);}
+}
+
+/* CONTENT LAYER ABOVE SMOKE */
+.banner-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* ==============================
+  MOVIE SECTION TITLE
+============================== */
+
+.movie-section .section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1.25rem;
+}
+
+/* ==============================
+  MOVIE CARD STYLE
+============================== */
+
+.movie-card {
+  background: linear-gradient(180deg, #1b1733 0%, #0f0b22 100%);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: transform .25s ease, box-shadow .25s ease;
+  z-index: 10;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+/* ==============================
+  FOOTER
+============================== */
+
+.site-footer {
+  width: 100%;
+  padding: 1rem 0;
+  margin-top: 3rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.85rem;
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  z-index: 20;
+}
+
+/* Footer link underline */
+.footer-item {
+  display: block;
+  line-height: 1.4;
+  padding-bottom: 2px;
+  width: fit-content;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  transition: color .2s ease;
+  position: relative;
+}
+
+.footer-item:hover {
+  color: #fff;
+}
+
+.footer-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 1px;
+  background: rgba(255,255,255,0.9);
+  transition: width .2s ease;
+}
+
+.footer-item:hover::after {
+  width: 100%;
+}
+@keyframes slowFloat { 0%{transform:translateY(0)} 50%{transform:translateY(-25px)} 100%{transform:translateY(0)} }
+.animate-slow-float { animation: slowFloat 18s ease-in-out infinite; }
+.animate-slow-float2 { animation: slowFloat 24s ease-in-out infinite; }
+.animate-slow-float3 { animation: slowFloat 30s ease-in-out infinite; }
+
+@keyframes twinkle { 0%{opacity:.3} 50%{opacity:1} 100%{opacity:.3} }
+.animate-twinkle { animation: twinkle 2s infinite alternate, slowFloat 20s ease-in-out infinite; }
+
+/* Ẩn icon mắt mặc định của trình duyệt trong ô mật khẩu (nhất là trên Edge) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
