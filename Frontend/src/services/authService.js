@@ -25,3 +25,23 @@ export function refreshToken(refreshToken) {
 	});
 }
 
+// Gửi email quên mật khẩu
+export function forgotPassword(email) {
+	return http.post("/auth/password/forgot", null, {
+		params: { email },
+	});
+}
+
+// Verify code reset mật khẩu
+export function verifyResetPasswordCode(email, code) {
+	return http.post("/auth/password/verify", null, {
+		params: { email, code },
+	});
+}
+
+// Đặt lại mật khẩu mới sau khi verify code
+export function resetPassword(payload) {
+	// payload: { email, newPassword }
+	return http.post("/auth/password/reset", payload);
+}
+

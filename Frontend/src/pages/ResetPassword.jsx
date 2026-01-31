@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { verifyResetPasswordCode, resetPassword } from "../services/authService";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const email = searchParams.get("email") || "";
+  const code = searchParams.get("code") || "";
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -13,14 +15,47 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isCodeValid, setIsCodeValid] = useState(false);
+
+  useEffect(() => {
+    const verifyCode = async () => {
+      if (!email || !code) {
+        setError("Liên kết không hợp lệ hoặc đã hết hạn.");
+        setIsCodeValid(false);
+        return;
+      }
+      try {
+        setIsVerifying(true);
+        setError("");
+        await verifyResetPasswordCode(email, code);
+        setIsCodeValid(true);
+      } catch (err) {
+        setIsCodeValid(false);
+        setError(
+          err?.response?.data?.message ||
+            "Mã reset không hợp lệ hoặc đã hết hạn."
+        );
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+
+    void verifyCode();
+  }, [email, code]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!token) {
+    if (!email || !code) {
       setError("Liên kết không hợp lệ hoặc đã hết hạn.");
+      return;
+    }
+
+    if (!isCodeValid) {
+      setError("Mã reset không hợp lệ hoặc đã hết hạn.");
       return;
     }
 
@@ -41,8 +76,7 @@ export default function ResetPassword() {
 
     try {
       setIsSubmitting(true);
-      // TODO: Gọi API đặt lại mật khẩu với token & password tại đây
-      // await resetPassword({ token, password });
+      await resetPassword({ email, newPassword: password });
 
       setSuccess("Đặt lại mật khẩu thành công! Bạn có thể đăng nhập lại.");
       setTimeout(() => {
@@ -115,9 +149,9 @@ export default function ResetPassword() {
             </p>
           </div>
 
-          {!token && (
-            <p className="mb-3 text-xs sm:text-sm text-center text-red-400 font-medium">
-              Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.
+          {isVerifying && (
+            <p className="mb-3 text-xs sm:text-sm text-center text-slate-300">
+              Đang kiểm tra mã reset, vui lòng chờ...
             </p>
           )}
 
@@ -199,7 +233,7 @@ export default function ResetPassword() {
 
             <button
               type="submit"
-              disabled={isSubmitting || !token}
+              disabled={isSubmitting || !email || !code || !isCodeValid}
               className="mt-2 w-full rounded-lg bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-600 py-2.5 text-sm sm:text-base font-semibold text-white shadow-[0_12px_30px_rgba(37,99,235,0.5)] hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Đang cập nhật mật khẩu..." : "Cập Nhật Mật Khẩu"}

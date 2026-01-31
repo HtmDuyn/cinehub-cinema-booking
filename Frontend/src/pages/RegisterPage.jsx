@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateRegisterForm } from "../validation/RegisterValidation";
 import { register as registerApi } from "../services/axious";
@@ -25,7 +25,6 @@ export default function RegisterPage() {
 	const [apiError, setApiError] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
-	const otpInputsRef = useRef([]);
 
 	const handleChange = (field) => (e) => {
 		const value = field === "acceptTerms" ? e.target.checked : e.target.value;
@@ -422,39 +421,18 @@ export default function RegisterPage() {
 						<p className="text-xs sm:text-sm text-slate-300 text-center mb-4">
 							Chúng tôi đã gửi mã xác nhận 6 số tới email của bạn. Vui lòng nhập mã để kích hoạt tài khoản.
 						</p>
-						<div className="flex justify-center gap-2 sm:gap-3 mb-5">
-							{[0, 1, 2, 3, 4, 5].map((idx) => (
-								<input
-									key={idx}
-									maxLength={1}
-									value={verifyCode[idx] || ""}
-									ref={(el) => {
-										otpInputsRef.current[idx] = el;
-									}}
-									onChange={(e) => {
-										const raw = e.target.value.replace(/[^0-9]/g, "");
-										const digit = raw.slice(-1); // chỉ lấy 1 ký tự cuối
-										setVerifyCode((prev) => {
-											const chars = prev.split("");
-											chars[idx] = digit;
-											return chars.join("").slice(0, 6);
-										});
-
-										// tự động nhảy sang ô tiếp theo nếu có số
-										if (digit && idx < 5) {
-											const next = otpInputsRef.current[idx + 1];
-											if (next) next.focus();
-										}
-									}}
-									onKeyDown={(e) => {
-										if (e.key === "Backspace" && !verifyCode[idx] && idx > 0) {
-											const prevInput = otpInputsRef.current[idx - 1];
-											if (prevInput) prevInput.focus();
-										}
-									}}
-									className="h-11 w-9 sm:h-12 sm:w-10 text-center text-lg font-semibold rounded-lg bg-slate-900 border border-white/15 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/80"
-								/>
-							))}
+						<div className="mb-5">
+							<input
+								type="text"
+								maxLength={6}
+								className="w-full rounded-lg border bg-white/5 px-3 py-2.5 text-sm text-white tracking-[0.3em] text-center placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-transparent border-white/10"
+								placeholder="Nhập mã 6 số"
+								value={verifyCode}
+								onChange={(e) => {
+									const onlyDigits = e.target.value.replace(/[^0-9]/g, "");
+									setVerifyCode(onlyDigits.slice(0, 6));
+								}}
+							/>
 						</div>
 						{verifyError && (
 							<p className="mb-3 text-xs text-red-400 text-center">{verifyError}</p>
