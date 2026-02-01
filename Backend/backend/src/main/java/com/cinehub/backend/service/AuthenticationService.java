@@ -37,13 +37,63 @@ public class AuthenticationService {
         if (!request.isTermsAccepted()) {
             throw new RegistrationException("Vui lòng đồng ý với điều khoản sử dụng!");
         }
-        if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
+
+        // kiểm tra username
+        var existingByUsername = accountRepository.findByUsername(request.getUsername());
+        if (existingByUsername.isPresent() && existingByUsername.get().isActive()) {
             throw new RegistrationException("Lỗi: Username đã tồn tại!");
         }
-        if (accountRepository.existsByEmail(request.getEmail())) {
-            throw new RegistrationException("Lỗi: Email đã tồn tại!");
+
+        // kiểm tra email
+        var existingByEmail = accountRepository.findByEmail(request.getEmail());
+        if (existingByEmail.isPresent()) {
+            Account acc = existingByEmail.get();
+            if (acc.isActive()) {
+                throw new RegistrationException("Lỗi: Email đã tồn tại!");
+            } else {
+                // --- ghi đè thông tin mới nếu chưa active ---
+                acc.setUsername(request.getUsername());
+                acc.setPassword(passwordEncoder.encode(request.getPassword()));
+                acc.setPhoneNumber(request.getPhoneNumber());
+                acc.setFullName(request.getFullName());
+                acc.setDob(request.getDob());
+                acc.setRole(Role.CUSTOMER);
+                acc.setActive(false);
+                acc.setMembershipScore(0);
+
+                accountRepository.save(acc);
+
+                // tạo record verification mới
+                String randomCode = String.valueOf(new Random().nextInt(900000) + 100000);
+                AccountVerification verification = AccountVerification.builder()
+                        .account(acc)
+                        .code(randomCode)
+                        .expiry(LocalDateTime.now().plusMinutes(10))
+                        .build();
+                verificationRepository.save(verification);
+
+                try {
+                    emailService.sendVerificationEmail(acc.getEmail(), randomCode);
+                } catch (Exception e) {
+                    System.err.println("Gửi mail thất bại: " + e.getMessage());
+                    return AuthenticationResponse.builder()
+                            .token(null)
+                            .id(acc.getId())
+                            .username(acc.getUsername())
+                            .role(acc.getRole().name())
+                            .build();
+                }
+
+                return AuthenticationResponse.builder()
+                        .token(null)
+                        .id(acc.getId())
+                        .username(acc.getUsername())
+                        .role(acc.getRole().name())
+                        .build();
+            }
         }
 
+        // --- tạo mới nếu chưa có ---
         Account account = new Account();
         account.setUsername(request.getUsername());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -55,17 +105,21 @@ public class AuthenticationService {
         account.setActive(false);
         account.setMembershipScore(0);
 
-        String randomCode = String.valueOf(new Random().nextInt(900000) + 100000);
-        account.setVerificationCode(randomCode);
-        account.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-
         accountRepository.save(account);
+
+        // tạo record verification mới
+        String randomCode = String.valueOf(new Random().nextInt(900000) + 100000);
+        AccountVerification verification = AccountVerification.builder()
+                .account(account)
+                .code(randomCode)
+                .expiry(LocalDateTime.now().plusMinutes(10))
+                .build();
+        verificationRepository.save(verification);
 
         try {
             emailService.sendVerificationEmail(account.getEmail(), randomCode);
         } catch (Exception e) {
             System.err.println("Gửi mail thất bại: " + e.getMessage());
-            // vẫn trả về thông tin user, nhưng token = null
             return AuthenticationResponse.builder()
                     .token(null)
                     .id(account.getId())
@@ -74,7 +128,6 @@ public class AuthenticationService {
                     .build();
         }
 
-        // chưa active nên chưa cấp token, FE chỉ nhận thông tin user
         return AuthenticationResponse.builder()
                 .token(null)
                 .id(account.getId())
@@ -195,4 +248,5 @@ public class AuthenticationService {
                 .role(account.getRole().name())
                 .build();
     }
+
 }

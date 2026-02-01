@@ -2,10 +2,12 @@ package com.cinehub.backend.config;
 
 import java.io.IOException;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,48 +27,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain
-) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String userEmail;
 
-    String path = request.getRequestURI();
-
-    // ✅ BỎ QUA JWT FILTER CHO PAYMENT
-    if (path.startsWith("/api/auth")
-        || path.startsWith("/api/chat")
-        || path.startsWith("/api/payment")) {
-
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    final String authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    String jwt = authHeader.substring(7);
-    String userEmail = jwtService.extractUsername(jwt);
-
-    if (userEmail != null &&
-        SecurityContextHolder.getContext().getAuthentication() == null) {
-
-        UserDetails userDetails =
-            userDetailsService.loadUserByUsername(userEmail);
-
-        if (jwtService.isTokenValid(jwt, userDetails)) {
-            UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-
-            SecurityContextHolder.getContext()
-                .setAuthentication(authToken);
+        // 1. Kiểm tra xem có Token gửi kèm không (Bắt đầu bằng "Bearer ")
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
-    }
 
-    filterChain.doFilter(request, response);
-}
+        // 2. Lấy token ra (bỏ chữ "Bearer " đi)
+        jwt = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(jwt); // Lấy username từ token
+
+        // 3. Nếu có user và chưa được xác thực
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            
+            // 4. Nếu token hợp lệ thì set thông tin cho Spring Security
+            if (jwtService.isTokenValid(jwt, userDetails)) { //
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
 }

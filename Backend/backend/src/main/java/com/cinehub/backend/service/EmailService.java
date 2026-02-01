@@ -26,16 +26,4 @@ public class EmailService {
         mailSender.send(message);
         System.out.println("Mail sent successfully...");
     }
-
-    public void sendPasswordResetEmail(String toEmail, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail); // dùng email từ cấu hình
-        message.setTo(toEmail);
-        message.setSubject("Mã đặt lại mật khẩu CineHub");
-        message.setText("Xin chào,\n\nMã đặt lại mật khẩu của bạn là: " + code + "\n\nMã này sẽ hết hạn sau 10 phút.");
-
-        mailSender.send(message);
-        System.out.println("Mail sent successfully...");
-    }
-
 }
