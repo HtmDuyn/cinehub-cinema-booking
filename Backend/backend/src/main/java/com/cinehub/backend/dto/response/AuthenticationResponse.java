@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationResponse {
     private String token; // Token
+    private String refreshToken;
     private String username;
     private String role;
     private Long id;
@@ -21,4 +22,5 @@ public class AuthenticationResponse {
     private String phoneNumber;
     private Integer membershipScore;
     private LocalDate dob;
+
 }

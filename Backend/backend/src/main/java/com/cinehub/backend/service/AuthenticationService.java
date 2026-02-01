@@ -31,6 +31,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final RefreshTokenService refreshTokenService;
 
     // --- 1. ĐĂNG KÝ ---
     public AuthenticationResponse register(RegisterRequest request) {
@@ -187,8 +188,9 @@ public class AuthenticationService {
         }
 
         var jwtToken = jwtService.generateToken(user);
-
-        return AuthenticationResponse.builder().token(jwtToken).id(user.getId()).username(user.getUsername())
+        var refreshToken = refreshTokenService.create(user);
+        return AuthenticationResponse.builder().token(jwtToken).refreshToken(refreshToken.getToken()).id(user.getId())
+                .username(user.getUsername())
                 .role(user.getRole().name()).email(user.getEmail()).fullName(user.getFullName())
                 .phoneNumber(user.getPhoneNumber()).membershipScore(user.getMembershipScore()).dob(user.getDob())
                 .build();
